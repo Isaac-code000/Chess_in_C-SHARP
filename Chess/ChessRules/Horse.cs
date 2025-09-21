@@ -12,10 +12,50 @@ namespace ChessRules
         public Horse(Colors color, Board board) : base(color, board)
         {
         }
+        private bool canMove(Position position)
+        {
+            Piece piece = Board.GetPiece(position);
+            return piece == null || piece.Color != Color;
+        }
+
+        private void TestPosition(Position position, bool[,] mat)
+        {
+            if (Board.ValidPosition(position) && canMove(position))
+            {
+                mat[position.Lines, position.Columns] = true;
+            }
+        }
+
+        public override bool[,] PossibleMoves()
+        {
+            bool[,] mat = new bool[Board.Lines, Board.Columns];
+            Position position = new Position(0, 0);
+
+            position.SetValues(Position.Lines - 2, Position.Columns + 1);
+            TestPosition(position, mat);
+            position.SetValues(Position.Lines - 2, Position.Columns - 1);
+            TestPosition(position, mat);
+
+            position.SetValues(Position.Lines - 1, Position.Columns + 2);
+            TestPosition(position, mat);
+            position.SetValues(Position.Lines - 1, Position.Columns - 2);
+            TestPosition(position, mat);
+
+            position.SetValues(Position.Lines + 1, Position.Columns + 1);
+            TestPosition(position, mat);
+            position.SetValues(Position.Lines + 1, Position.Columns - 1);
+            TestPosition(position, mat);
+
+            position.SetValues(Position.Lines + 2, Position.Columns + 2);
+            TestPosition(position, mat);
+            position.SetValues(Position.Lines + 2, Position.Columns - 2);
+            TestPosition(position, mat);
+            return mat;
+        }
         public override string ToString()
         {
             return "H";
         }
     }
-   
+
 }
