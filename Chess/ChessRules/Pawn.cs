@@ -13,11 +13,77 @@ namespace ChessRules
         {
         }
 
+        private bool canMove(Position position)
+        {
+            Piece piece = Board.GetPiece(position);
+            return piece == null || piece.Color != Color;
+        }
+
+        private bool TestPosition(Position position, bool[,] mat)
+        {
+            if(Board.ValidPosition(position) && canMove(position)){
+                mat[position.Lines, position.Columns] = true;
+            }
+            return true;
+        }
+
+        public override bool[,] PossibleMoves()
+        {
+            bool[,] mat = new bool[Board.Lines, Board.Columns];
+            Position pos = new Position(0, 0);
+
+            if (Board.GetPiece(GetPosition()).Color == Colors.white)
+            {
+                pos.SetValues(Position.Lines - 1, Position.Columns);
+                if(Board.GetPiece(pos) == null)
+                {
+                    mat[pos.Lines, pos.Columns] = true;
+                }
+               
+                pos.SetValues(Position.Lines - 2, Position.Columns);
+                if (MoveCount == 0 && Board.GetPiece(pos) == null)
+                {
+                    TestPosition(pos, mat);
+                }
+
+                pos.SetValues(Position.Lines - 1, Position.Columns - 1);
+                if (Board.GetPiece(pos) != null)
+                {
+                    TestPosition(pos, mat);
+                }
+                pos.SetValues(Position.Lines - 1, Position.Columns + 1);
+                if (Board.GetPiece(pos) != null)
+                {
+                    TestPosition(pos, mat);
+                }
+            }
+            else
+            {
+                pos.SetValues(Position.Lines + 1, Position.Columns);
+                TestPosition(pos, mat);
+                if (MoveCount == 0)
+                {
+                    pos.SetValues(Position.Lines + 2, Position.Columns);
+                    TestPosition(pos, mat);
+                }
+                pos.SetValues(Position.Lines + 1, Position.Columns - 1);
+                if (Board.GetPiece(pos) != null)
+                {
+                    TestPosition(pos, mat);
+                }
+                pos.SetValues(Position.Lines + 1, Position.Columns + 1);
+                if (Board.GetPiece(pos) != null)
+                {
+                    TestPosition(pos, mat);
+                }
+            }
+            return mat;
+        }
         public override string ToString()
         {
             return "P";
         }
     }
-    
-    }
+
+}
 
