@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Chess.ChessBoard;
 using ChessBoard;
 
 namespace ChessRules
@@ -60,7 +61,23 @@ namespace ChessRules
             pos.SetValues(pos.Lines - 1, pos.Columns + 1);
             DiagonalMoves(pos, mat, '-', '+');
             return mat;
-        }
+        } 
+
+        public bool IsLocked(bool[,] mat)
+        {
+            for(int i = 0; i < mat.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat.GetLength(1); j++)
+                {
+                    if (mat[i, j])
+                    {
+                        return false;
+                    }
+                }
+            }
+            Console.WriteLine("This piece no have possible moves, try again");
+            return true;    
+        }   
 
         public override string ToString()
         {

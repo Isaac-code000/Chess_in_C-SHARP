@@ -101,6 +101,21 @@ namespace ChessRules
             ColumnMoves(pos, mat, '+');
             return mat;
         }
+        public bool IsLocked(bool[,] mat)
+        {
+            for (int i = 0; i < mat.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat.GetLength(1); j++)
+                {
+                    if (mat[i, j])
+                    {
+                        return false;
+                    }
+                }
+            }
+            Console.WriteLine("This piece no have possible moves, try again");
+            return true;
+        }
         public override string ToString()
         {
             return "Q";

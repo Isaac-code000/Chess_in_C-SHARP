@@ -41,16 +41,32 @@ namespace ChessRules
             position.SetValues(Position.Lines - 1, Position.Columns - 2);
             TestPosition(position, mat);
 
-            position.SetValues(Position.Lines + 1, Position.Columns + 1);
+            position.SetValues(Position.Lines + 1, Position.Columns + 2);
             TestPosition(position, mat);
-            position.SetValues(Position.Lines + 1, Position.Columns - 1);
+            position.SetValues(Position.Lines + 1, Position.Columns - 2);
             TestPosition(position, mat);
 
-            position.SetValues(Position.Lines + 2, Position.Columns + 2);
+            position.SetValues(Position.Lines + 2, Position.Columns + 1);
             TestPosition(position, mat);
-            position.SetValues(Position.Lines + 2, Position.Columns - 2);
+            position.SetValues(Position.Lines + 2, Position.Columns - 1);
             TestPosition(position, mat);
             return mat;
+        }
+
+        public bool IsLocked(bool[,] mat)
+        {
+            for (int i = 0; i < mat.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat.GetLength(1); j++)
+                {
+                    if (mat[i, j])
+                    {
+                        return false;
+                    }
+                }
+            }
+            Console.WriteLine("This piece no have possible moves, try again");
+            return true;
         }
         public override string ToString()
         {

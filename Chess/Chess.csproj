@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Board\" />
-    <Folder Include="ChessRules\" />
+    <Folder Include="Application\" />
   </ItemGroup>
 
 </Project>

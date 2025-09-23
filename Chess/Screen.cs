@@ -10,15 +10,16 @@ namespace Chess
 {
     internal class Screen
     {
-        public static void PrintBoard(Board board)
+        public static void PrintBoard(Board board,Piece origin = null)
         {
             int linecount = 9;
+           
 
             ConsoleColor aux = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("   --------------------------");
             Console.ForegroundColor = aux;
-            
+
             for (int i = 0; i < board.Lines; i++)
             {
                 Console.BackgroundColor = ConsoleColor.Black;
@@ -28,24 +29,26 @@ namespace Chess
                 Console.Write(" " + --linecount + " |");
                 Console.ForegroundColor = aux;
 
-                
-
                 for (int j = 0; j < board.Columns; j++)
                 {
                     Console.Write("");
                     if ((i + j) % 2 == 0)
                         Console.BackgroundColor = ConsoleColor.DarkGray;
-                    else
+                    else 
                         Console.BackgroundColor = ConsoleColor.Black;
-
-                    PrintPiece(board.GetPiece(i, j));
+                    if(origin != null && origin.PossibleMoves()[i, j])
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkGreen;
+                    }
+                    PrintPiece(board.GetPiece(i, j));  
                 }
+
                 Console.BackgroundColor = ConsoleColor.Black;
                 aux = Console.ForegroundColor;
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("|");
                 Console.ForegroundColor = aux;
-                
+
             }
             Console.BackgroundColor = ConsoleColor.Black;
             aux = Console.ForegroundColor;
@@ -53,7 +56,11 @@ namespace Chess
             Console.WriteLine("   --------------------------");
             Console.WriteLine("     A " + " B " + " C " + " D " + " E " + " F " + " G " + " H ");
             Console.ForegroundColor = aux;
-           
+
+        }
+        public void ShowPossibleMoves(Piece piece)
+        {
+            bool[,] mat = piece.PossibleMoves();
         }
 
         public static Position ReadChessPosition()
@@ -88,9 +95,10 @@ namespace Chess
                     Console.ForegroundColor = aux;
                 }
 
-
             }
         }
     }
+
 }
+
 

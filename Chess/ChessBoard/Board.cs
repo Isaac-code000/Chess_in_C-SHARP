@@ -48,8 +48,6 @@ namespace ChessBoard
             return true;
         }
 
-
-
         public void NewPiece(Piece piece, Position position)
         {
             ValidatePosition(position);
@@ -57,7 +55,10 @@ namespace ChessBoard
             piece.newPosition(position);
         }   
 
-
+        public void PutPiece(Piece piece, Position position)
+        {
+            NewPiece(piece, position);
+        }   
 
         public Piece GetPiece(int line, int column)
         {
@@ -79,52 +80,5 @@ namespace ChessBoard
             pieces[position.Lines, position.Columns] = null;
             position = null;
         }
-
-        public void MovePiece(Position origin, Position destiny)
-        {
-            
-            if (!ThereIsAPiece(origin))
-            {
-                throw new BoardException("There is no piece in this position");
-            }
-            else 
-            {
-                if(ThereIsAPiece(destiny))
-                {
-                    if(GetPiece(origin).Color == GetPiece(destiny).Color)
-                    {
-                        throw new BoardException("You cannot capture your own piece");
-                    }
-                    else
-                    {
-                        RemovePiece(destiny);
-                        Piece p = GetPiece(origin);
-                        p.increaseMoveCount();  
-                        RemovePiece(origin);
-                        NewPiece(p, destiny);
-                    }
-                }
-                else
-                {
-                    Piece p = GetPiece(origin);
-                    p.increaseMoveCount();
-                    RemovePiece(origin);
-                    NewPiece(p, destiny);
-                }
-            }
-            
-
-        }   
-
-
-
-
-
-
-
-
-
-
-
     }
 }

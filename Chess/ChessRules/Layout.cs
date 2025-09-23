@@ -21,8 +21,8 @@ namespace ChessRules
             board.NewPiece(new Tower(Colors.black, board), new Position(0, 7));
 
             for (int i = 0; i < 8; i++) {
-                board.NewPiece(new Pawn(Colors.black, board), new Position(1, i));
-                board.NewPiece(new Pawn(Colors.white, board), new Position(6, i));
+                board.NewPiece(new Tower(Colors.black, board), new Position(1, i));
+                board.NewPiece(new Queen(Colors.white, board), new Position(6, i));
             }
             // Setting up white pieces
             board.NewPiece(new Tower(Colors.white, board), new Position(7, 0));

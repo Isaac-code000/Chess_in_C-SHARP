@@ -18,6 +18,12 @@ namespace ChessBoard
             Columns = columns;
         }
 
+        public void SetValues(int lines, int columns)
+        {
+            Lines = lines;
+            Columns = columns;
+        }
+
         public override string ToString()
         {
             return Lines + ", " + Columns;

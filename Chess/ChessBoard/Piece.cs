@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ChessBoard
 {
-    class Piece
+    abstract class Piece
     {
         public Colors Color { get; set; }
         public Position Position { get; protected set; }
@@ -30,13 +30,18 @@ namespace ChessBoard
             
         }
 
-        public void increaseMoveCount()
+        public void IncreaseMoveCount()
         {
             MoveCount++;
-        }   
+        }
 
+        public Position GetPosition()
+        {
+            return Position;
+        }
 
-
+        public abstract bool[,] PossibleMoves();
+        
 
     }
 }
