@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,10 +27,82 @@ namespace ChessRules
 
         private void TestMove(Position position, bool[,] mat)
         {
-            if (Board.ValidatePosition(position) && CanMove(position))
+            if (Board.ValidPosition(position) && CanMove(position))
             {
                 mat[position.Lines, position.Columns] = true;
             }
+        }
+
+        public void SmallCastling(Colors color)
+        {
+            
+            if (color == Colors.black)
+            {
+                Piece king = Board.GetPiece(Position);
+                Piece tower = Board.GetPiece(new Position(0, 7));
+                Board.RemovePiece(Position);
+                Board.RemovePiece(new Position(0, 7));
+                Board.PutPiece(king, new Position(0, 6));
+                Board.PutPiece(tower, new Position(0, 5));
+            }
+            else
+            {
+                Piece king = Board.GetPiece(Position);
+                Piece tower = Board.GetPiece(new Position(7, 7));
+                Board.RemovePiece(Position);
+                Board.RemovePiece(new Position(7, 7));
+                Board.PutPiece(king, new Position(7, 6));
+                Board.PutPiece(tower, new Position(7, 5));
+            }
+        }
+
+        public bool CastlingPossible()
+        {
+            if (ValidSmallCastling(Color, PossibleMoves())) return true;
+            return false;
+        }
+
+        private bool ValidSmallCastling(Colors color, bool[,] mat)
+        {
+            if (color == Colors.black)
+            {
+                Piece blackT = Board.GetPiece(new Position(0, 7));
+                Piece blackK = Board.GetPiece(new Position(0, 4));
+                if (blackK is King e && blackT is Tower)
+                {
+                    if (blackK.MoveCount == 0 && blackT.MoveCount == 0)
+                    {
+                        if (CanMove(new Position(0, 5)) && CanMove(new Position(0, 6)))
+                        {
+                            mat[0, 6] = true;
+                            return true;
+                        }
+                        
+                    }
+                }
+            }
+            else
+            {
+                Piece whiteT = Board.GetPiece(new Position(7, 7));
+                Piece whiteK = Board.GetPiece(new Position(7, 4));
+                if (whiteK is King e && whiteT is Tower)
+                {
+                    if (whiteK.MoveCount == 0 && whiteT.MoveCount == 0)
+                    {
+                        if (CanMove(new Position(7, 5)) && CanMove(new Position(7, 6)))
+                        {
+                            mat[7, 6] = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        private void BigCastling()
+        {
         }
 
         public override bool[,] PossibleMoves()
@@ -55,6 +128,7 @@ namespace ChessRules
             TestMove(pos, mat);
             pos.SetValues(Position.Lines + 1, Position.Columns - 1);
             TestMove(pos, mat);
+            ValidSmallCastling(Color, mat);
             return mat;
         }
     }
