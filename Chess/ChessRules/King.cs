@@ -10,6 +10,8 @@ namespace ChessRules
 {
     internal class King : Piece
     {
+       
+        
         public King(Colors color, Board board) : base(color, board)
         {
         }
@@ -35,7 +37,10 @@ namespace ChessRules
 
         public void SmallCastling(Colors color)
         {
-            
+            if (!ValidSmallCastling(Color, PossibleMoves()))
+            {
+                return;
+            }
             if (color == Colors.black)
             {
                 Piece king = Board.GetPiece(Position);
@@ -56,11 +61,33 @@ namespace ChessRules
             }
         }
 
-        public bool CastlingPossible()
+        public void BigCastling(Colors color)
         {
-            if (ValidSmallCastling(Color, PossibleMoves())) return true;
-            return false;
+            if (!ValidBigCastling(Color, PossibleMoves()))
+            {
+                return;
+            }
+            if (color == Colors.black)
+            {
+                Piece king = Board.GetPiece(Position);
+                Piece tower = Board.GetPiece(new Position(0, 0));
+                Board.RemovePiece(Position);
+                Board.RemovePiece(new Position(0, 0));
+                Board.PutPiece(king, new Position(0, 2));
+                Board.PutPiece(tower, new Position(0, 3));
+            }
+            else
+            {
+                Piece king = Board.GetPiece(Position);
+                Piece tower = Board.GetPiece(new Position(7, 0));
+                Board.RemovePiece(Position);
+                Board.RemovePiece(new Position(7, 0));
+                Board.PutPiece(king, new Position(7, 2));
+                Board.PutPiece(tower, new Position(7, 3));
+            }
         }
+
+        
 
         private bool ValidSmallCastling(Colors color, bool[,] mat)
         {
@@ -68,7 +95,7 @@ namespace ChessRules
             {
                 Piece blackT = Board.GetPiece(new Position(0, 7));
                 Piece blackK = Board.GetPiece(new Position(0, 4));
-                if (blackK is King e && blackT is Tower)
+                if (blackK is King  && blackT is Tower)
                 {
                     if (blackK.MoveCount == 0 && blackT.MoveCount == 0)
                     {
@@ -85,7 +112,7 @@ namespace ChessRules
             {
                 Piece whiteT = Board.GetPiece(new Position(7, 7));
                 Piece whiteK = Board.GetPiece(new Position(7, 4));
-                if (whiteK is King e && whiteT is Tower)
+                if (whiteK is King && whiteT is Tower)
                 {
                     if (whiteK.MoveCount == 0 && whiteT.MoveCount == 0)
                     {
@@ -100,10 +127,46 @@ namespace ChessRules
             return false;
         }
 
-
-        private void BigCastling()
+        private bool ValidBigCastling(Colors color, bool[,] mat)
         {
+            if (color == Colors.black)
+            {
+                Piece blackT = Board.GetPiece(new Position(0, 0));
+                Piece blackK = Board.GetPiece(new Position(0, 4));
+                if (blackK is King  && blackT is Tower)
+                {
+                    if (blackK.MoveCount == 0 && blackT.MoveCount == 0)
+                    {
+                        if (CanMove(new Position(0, 3)) && CanMove(new Position(0, 2)))
+                        {
+                            mat[0, 2] = true;
+                            return true;
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                Piece whiteT = Board.GetPiece(new Position(7, 0));
+                Piece whiteK = Board.GetPiece(new Position(7, 4));
+                if (whiteK is King && whiteT is Tower)
+                {
+                    if (whiteK.MoveCount == 0 && whiteT.MoveCount == 0)
+                    {
+                        if (CanMove(new Position(7, 3)) && CanMove(new Position(7, 2)))
+                        {
+                            mat[7, 2] = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
+
+
+
 
         public override bool[,] PossibleMoves()
         {
@@ -129,6 +192,7 @@ namespace ChessRules
             pos.SetValues(Position.Lines + 1, Position.Columns - 1);
             TestMove(pos, mat);
             ValidSmallCastling(Color, mat);
+            ValidBigCastling(Color, mat);
             return mat;
         }
     }
