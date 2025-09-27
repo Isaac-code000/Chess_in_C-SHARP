@@ -24,8 +24,10 @@ namespace ChessRules
 
         private bool IsEnemy(Position p)
         {
-            if(p == null) return false;
-            if(Board.GetPiece(p).Color == play.Opponent(Board.GetPiece(p).Color)) return true;
+            if(Board.GetPiece(p) != null && Board.GetPiece(p).Color != Color)
+            {
+               return true;
+            }
             return false;
         }
 
@@ -103,10 +105,12 @@ namespace ChessRules
                     Position right = new Position(Position.Lines, Position.Columns + 1);
                     if (Board.ValidPosition(left) && IsEnemy(left) && Board.GetPiece(left) == play.EnpassantPossible)
                     {
+                        left.SetValues(Position.Lines - 1, Position.Columns - 1);
                         TestPosition(left, mat);
                     }
                     if (Board.ValidPosition(right) && IsEnemy(right) && Board.GetPiece(right) == play.EnpassantPossible)
                     {
+                        right.SetValues(Position.Lines - 1, Position.Columns + 1);
                         TestPosition(right, mat);
                     }
                 }
@@ -142,10 +146,12 @@ namespace ChessRules
                     Position right = new Position(Position.Lines, Position.Columns + 1);
                     if (Board.ValidPosition(left) && IsEnemy(left) && Board.GetPiece(left) == play.EnpassantPossible)
                     {
+                        left.SetValues(Position.Lines + 1, Position.Columns - 1);
                         TestPosition(left, mat);
                     }
                     if (Board.ValidPosition(right) && IsEnemy(right) && Board.GetPiece(right) == play.EnpassantPossible)
                     {
+                        right.SetValues(Position.Lines + 1, Position.Columns + 1);
                         TestPosition(right, mat);
                     }
                 }
