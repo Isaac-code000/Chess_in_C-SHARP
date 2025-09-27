@@ -11,16 +11,17 @@ namespace ChessBoard
     {
         public Colors Color { get; set; }
         public Position Position { get; protected set; }
-        public int MoveCount { get; protected set; }
+        public int MoveCount { get; set; }
         public Board Board { get; protected set; }
 
-        public string Name { get; set; }    
+        public char Name { get; set; }    
 
         public Piece(Colors color, Board board)
         {
             Color = color;
             Board = board;
             Position = null;
+
             MoveCount = 0;
         }
 
@@ -33,6 +34,11 @@ namespace ChessBoard
         public void IncreaseMoveCount()
         {
             MoveCount++;
+        }
+
+        public void DecressMoveCount()
+        {
+            MoveCount--;
         }
 
         public Position GetPosition()

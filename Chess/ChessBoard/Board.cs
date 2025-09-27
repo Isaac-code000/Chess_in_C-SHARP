@@ -18,6 +18,7 @@ namespace ChessBoard
             Lines = lines;
             Columns = columns;
             pieces = new Piece[lines, columns];
+            
         }
 
         public bool ValidPosition(Position position)
