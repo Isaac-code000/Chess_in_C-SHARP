@@ -9,15 +9,24 @@ namespace ChessRules
 {
     internal class Pawn : Piece
     {
-        public Pawn(Colors color, Board board) : base(color, board)
+        private PlayMatch play;
+        public Pawn(Colors color, Board board,PlayMatch play) : base(color, board)
         {
             Name = 'P';
+            this.play = play;
         }
 
         private bool canMove(Position position)
         {
             Piece piece = Board.GetPiece(position);
             return piece == null || piece.Color != Color;
+        }
+
+        private bool IsEnemy(Position p)
+        {
+            if(p == null) return false;
+            if(Board.GetPiece(p).Color == play.Opponent(Board.GetPiece(p).Color)) return true;
+            return false;
         }
 
         private bool TestPosition(Position position, bool[,] mat)
@@ -31,7 +40,7 @@ namespace ChessRules
 
         private void Promotion(Piece p)
         {
-            Position aux = this.Position;
+            Position aux = Position;
             p.MoveCount = MoveCount;
             Board.RemovePiece(Position);
             Board.PutPiece(p, aux);
@@ -58,15 +67,7 @@ namespace ChessRules
         }
 
 
-        private void EnPassant()
-        {
-            if (Position.Lines == 3 && Color == Colors.white)
-            {
-                Position left = new Position(Position.Lines, Position.Columns - 1);
-                Position right = new Position(Position.Lines, Position.Columns + 1);
-            }
-        }
-
+       
         public override bool[,] PossibleMoves()
         {
             bool[,] mat = new bool[Board.Lines, Board.Columns];
@@ -96,7 +97,20 @@ namespace ChessRules
                 {
                     TestPosition(pos, mat);
                 }
-            }
+                if (Position.Lines == 3)
+                {
+                    Position left = new Position(Position.Lines, Position.Columns - 1);
+                    Position right = new Position(Position.Lines, Position.Columns + 1);
+                    if (Board.ValidPosition(left) && IsEnemy(left) && Board.GetPiece(left) == play.EnpassantPossible)
+                    {
+                        TestPosition(left, mat);
+                    }
+                    if (Board.ValidPosition(right) && IsEnemy(right) && Board.GetPiece(right) == play.EnpassantPossible)
+                    {
+                        TestPosition(right, mat);
+                    }
+                }
+        }
             else
             {
                 pos.SetValues(Position.Lines + 1, Position.Columns);
@@ -120,6 +134,20 @@ namespace ChessRules
                 if (Board.ValidPosition(pos) && Board.GetPiece(pos) != null)
                 {
                     TestPosition(pos, mat);
+                }
+
+                if (Position.Lines == 4)
+                {
+                    Position left = new Position(Position.Lines, Position.Columns - 1);
+                    Position right = new Position(Position.Lines, Position.Columns + 1);
+                    if (Board.ValidPosition(left) && IsEnemy(left) && Board.GetPiece(left) == play.EnpassantPossible)
+                    {
+                        TestPosition(left, mat);
+                    }
+                    if (Board.ValidPosition(right) && IsEnemy(right) && Board.GetPiece(right) == play.EnpassantPossible)
+                    {
+                        TestPosition(right, mat);
+                    }
                 }
             }
             return mat;
