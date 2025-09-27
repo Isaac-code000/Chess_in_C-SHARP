@@ -28,7 +28,7 @@ namespace ChessRules
 
         private void TestMove(Position position, bool[,] mat)
         {
-            if (Board.ValidatePosition(position) && CanMove(position))
+            if (Board.ValidPosition(position) && CanMove(position))
             {
                 mat[position.Lines, position.Columns] = true;
             }
@@ -36,13 +36,18 @@ namespace ChessRules
 
         private void LineMoves(Position pos, bool[,] mat,char op)
         {
-            while (true)
+            while (Board.ValidPosition(pos))
             {
                 TestMove(pos, mat);
                 if (Board.ThereIsAPiece(pos) && Board.GetPiece(pos).Color != Color)
                 {
+                    TestMove(pos, mat);
+                    break;
+                }else if(Board.ThereIsAPiece(pos) && Board.GetPiece(pos).Color == Color)
+                {
                     break;
                 }
+               
                 if(op == '+')
                     pos.SetValues(pos.Lines + 1, pos.Columns);
                 else
@@ -50,16 +55,21 @@ namespace ChessRules
             }
         }
 
-        private void ColumnMoves(Position pos, bool[,] mat,char op)
+        private void ColumnMoves(Position pos, bool[,] mat, char op)
         {
-            while (true)
+            while (Board.ValidPosition(pos))
             {
                 TestMove(pos, mat);
                 if (Board.ThereIsAPiece(pos) && Board.GetPiece(pos).Color != Color)
                 {
+                    TestMove(pos, mat);
                     break;
                 }
-                if(op == '+')
+                else if (Board.ThereIsAPiece(pos) && Board.GetPiece(pos).Color == Color)
+                {
+                    break;
+                }
+                if (op == '+')
                     pos.SetValues(pos.Lines, pos.Columns + 1);
                 else
                     pos.SetValues(pos.Lines, pos.Columns - 1);

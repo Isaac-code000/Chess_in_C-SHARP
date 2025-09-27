@@ -22,7 +22,7 @@ namespace ChessRules
 
         private void TestMove(Position position, bool[,] mat)
         {
-            if (Board.ValidatePosition(position) && CanMove(position))
+            if (Board.ValidPosition(position) && CanMove(position))
             {
                 mat[position.Lines, position.Columns] = true;
             }
@@ -30,10 +30,15 @@ namespace ChessRules
 
         private void DiagonalMoves(Position pos, bool[,] mat, char op1, char op2)
         {
-            while (true)
+            while (Board.ValidPosition(pos))
             {
                 TestMove(pos, mat);
                 if (Board.ThereIsAPiece(pos) && Board.GetPiece(pos).Color != Color)
+                {
+                    TestMove(pos, mat);
+                    break;
+                }
+                else if(Board.ThereIsAPiece(pos) && Board.GetPiece(pos).Color == Color)
                 {
                     break;
                 }
@@ -52,17 +57,17 @@ namespace ChessRules
         {
             bool[,] mat = new bool[Board.Lines, Board.Columns];
             Position pos = new Position(0, 0);
-            pos.SetValues(pos.Lines + 1, pos.Columns + 1);
+            pos.SetValues(Position.Lines + 1, Position.Columns + 1);
             DiagonalMoves(pos, mat, '+', '+');
-            pos.SetValues(pos.Lines - 1, pos.Columns - 1);
+            pos.SetValues(Position.Lines - 1, Position.Columns - 1);
             DiagonalMoves(pos, mat, '-', '-');
-            pos.SetValues(pos.Lines + 1, pos.Columns - 1);
+            pos.SetValues(Position.Lines + 1, Position.Columns - 1);
             DiagonalMoves(pos, mat, '+', '-');
-            pos.SetValues(pos.Lines - 1, pos.Columns + 1);
+            pos.SetValues(Position.Lines - 1, Position.Columns + 1);
             DiagonalMoves(pos, mat, '-', '+');
             return mat;
         } 
-
+        
         public bool IsLocked(bool[,] mat)
         {
             for(int i = 0; i < mat.GetLength(0); i++)

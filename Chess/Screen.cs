@@ -5,16 +5,47 @@ using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 using ChessBoard;
+using ChessRules;
 
 namespace Chess
 {
     internal class Screen
     {
+        public static void PrintMatch(PlayMatch play)
+        {
+            PrintBoard(play.GetBoard());
+            Console.WriteLine();
+            Console.WriteLine(" Turn: " + play.Turn + " Play: " + play.CurrentPlayer);
+            Console.WriteLine();
+            if (play.Check)
+            {
+                Console.WriteLine("XEQUE!!!");
+            }
+            Console.WriteLine();
+            Console.WriteLine("Informe a origem");
+            Position origin = ReadChessPosition();
+            play.GetBoard().ValidatePosition(origin);
+            PrintBoard(play.GetBoard(), play.GetBoard().GetPiece(origin));
+
+            Console.WriteLine("Informe o destino");
+            Position destiny = ReadChessPosition();
+            play.GetBoard().ValidatePosition(destiny);
+            play.MoveIsPossible(origin, destiny);
+            play.PerformMovement(origin, destiny);
+            Console.Clear();
+
+            if (play.End)
+            {
+                Console.WriteLine("XEQUEMATE");
+                Console.WriteLine(play.Opponent(play.CurrentPlayer) + "Wins");
+                return;
+            }
+        }
+
+
         public static void PrintBoard(Board board,Piece origin = null)
         {
             int linecount = 9;
-           
-
             ConsoleColor aux = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("   --------------------------");
@@ -38,7 +69,7 @@ namespace Chess
                         Console.BackgroundColor = ConsoleColor.Black;
                     if(origin != null && origin.PossibleMoves()[i, j])
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkGreen;
+                        Console.BackgroundColor = ConsoleColor.DarkRed;
                     }
                     PrintPiece(board.GetPiece(i, j));  
                 }
@@ -83,7 +114,7 @@ namespace Chess
                 if (piece.Color == Colors.black)
                 {
                     ConsoleColor aux = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.Write(" " + piece + " ");
                     Console.ForegroundColor = aux;
                 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using Chess.ChessBoard;
@@ -18,6 +19,7 @@ namespace ChessRules
         public int Turn { get; set; }
         public bool Check { get; private set; }
         public bool End { get; set; }
+        public Piece EnpassantPossible { get; private set; }
 
         public HashSet<Piece> CapturedPieces;
         public HashSet<Piece> PiecesInGame;
@@ -30,6 +32,7 @@ namespace ChessRules
             CapturedPieces = new HashSet<Piece>();
             Check = false;
             SetLayout(Board);
+            EnpassantPossible = null;
         }
 
         public Board GetBoard() => Board;
@@ -77,14 +80,14 @@ namespace ChessRules
                             Position origin = p.Position;
                             Position destiny = new Position(i, j);
 
-                          
+
                             Piece captured = Board.GetPiece(destiny);
                             Board.PutPiece(p, destiny);
                             Board.RemovePiece(origin);
 
                             bool isCheck = InCheck(color);
 
-                            
+
                             Board.PutPiece(p, origin);
                             Board.RemovePiece(destiny);
                             if (captured != null)
@@ -115,15 +118,67 @@ namespace ChessRules
 
             SwitchPlayer();
             Turn++;
+            Piece p = Board.GetPiece(destiny);
+            if (p is Pawn && (destiny.Lines == origin.Lines - 2 || destiny.Lines == origin.Lines + 2))
+            {
+                EnpassantPossible = p;
+            }
+            else
+            {
+                EnpassantPossible = null;
+            }
+
         }
 
         public Piece MovePiece(Position origin, Position destiny)
         {
-            
 
             Piece movingPiece = Board.GetPiece(origin);
             if (movingPiece == null)
                 throw new BoardException("There is no piece in this position");
+
+            if (movingPiece is King)
+            {
+                King king = (King)movingPiece;
+
+                if (destiny.Columns == 6)
+                {
+                    if (movingPiece.Color == Colors.black)
+                    {
+                        king = (King)movingPiece;
+                        king.SmallCastling(Colors.black);
+                        movingPiece.IncreaseMoveCount();
+                        return null;
+                    }
+                    else
+                    {
+                        king = (King)movingPiece;
+                        king.SmallCastling(Colors.white);
+                        movingPiece.IncreaseMoveCount();
+                        return null;
+                    }
+                }
+                else if (destiny.Columns == 2)
+                {
+                    if (movingPiece.Color == Colors.black)
+                    {
+                        king = (King)movingPiece;
+                        king.BigCastling(Colors.black);
+                        movingPiece.IncreaseMoveCount();
+                        return null;
+                    }
+                    else
+                    {
+                        king = (King)movingPiece;
+                        king.BigCastling(Colors.white);
+                        movingPiece.IncreaseMoveCount();
+                        return null;
+                    }
+                }
+
+
+
+            }
 
             Piece capturedPiece = Board.GetPiece(destiny);
 
@@ -144,19 +199,27 @@ namespace ChessRules
             if (movingPiece is Pawn && (destiny.Lines == 0 || destiny.Lines == 7))
                 ((Pawn)movingPiece).ExecutePromotion();
 
-            if (movingPiece is King )
+            if (movingPiece is Pawn)
             {
-                if (movingPiece.Color == Colors.black)
+                if (origin.Columns != destiny.Columns && capturedPiece is null)
                 {
-                    King king = (King)movingPiece;
-                    king.SmallCastling(Colors.black);
-                }
-                else
-                {
-                    King king = (King)movingPiece;
-                    king.SmallCastling(Colors.white);
+                    if (movingPiece.Color == Colors.white)
+                    {
+                        capturedPiece = Board.GetPiece(new Position(destiny.Lines + 1, destiny.Columns));
+                        CapturedPieces.Add(capturedPiece);
+                        Board.RemovePiece(new Position(destiny.Lines + 1, destiny.Columns));
+                    }
+                    else
+                    {
+                        capturedPiece = Board.GetPiece(new Position(destiny.Lines - 1, destiny.Columns));
+                        CapturedPieces.Add(capturedPiece);
+                        Board.RemovePiece(new Position(destiny.Lines - 1, destiny.Columns));
+                    }
                 }
             }
+
+
+
 
             return capturedPiece;
         }
@@ -171,12 +234,33 @@ namespace ChessRules
                 movedPiece.DecressMoveCount();
             }
 
-            if (captured != null)
+            if (movedPiece is Pawn)
+            {
+                if (origin.Columns != destiny.Columns && captured == EnpassantPossible)
+                {
+                    Position newDestiny;
+                    if (captured.Color == Colors.white)
+                    {
+                        newDestiny = new Position(destiny.Lines - 1, destiny.Columns);
+
+                    }
+                    else
+                    {
+                        newDestiny = new Position(destiny.Lines + 1, destiny.Columns);
+                    }
+                    Board.PutPiece(captured, newDestiny);
+                    PiecesInGame.Add(captured);
+                    CapturedPieces.Remove(captured);
+                }
+            }
+            else if (captured != null)
             {
                 Board.PutPiece(captured, destiny);
                 PiecesInGame.Add(captured);
                 CapturedPieces.Remove(captured);
             }
+
+
         }
 
         public void MoveIsPossible(Position origin, Position destiny)
@@ -219,22 +303,25 @@ namespace ChessRules
             PutNewPiece('c', 1, new Bishop(Colors.black, board));
             PutNewPiece('d', 1, new Queen(Colors.black, board));
             PutNewPiece('e', 1, new King(Colors.black, board));
-            
+            PutNewPiece('f', 1, new Bishop(Colors.black, board));
+            PutNewPiece('g', 1, new Horse(Colors.black, board));
             PutNewPiece('h', 1, new Tower(Colors.black, board));
 
             for (int i = 0; i < 8; i++)
-                PutNewPiece((char)('a' + i), 2, new Pawn(Colors.black, board));
-
+            {
+                PutNewPiece((char)('a' + i), 2, new Pawn(Colors.black, board, this));
+                PutNewPiece((char)('a' + i), 7, new Pawn(Colors.white, board, this));
+            }
             PutNewPiece('a', 8, new Tower(Colors.white, board));
             PutNewPiece('b', 8, new Horse(Colors.white, board));
             PutNewPiece('c', 8, new Bishop(Colors.white, board));
             PutNewPiece('d', 8, new Queen(Colors.white, board));
             PutNewPiece('e', 8, new King(Colors.white, board));
-            
+            PutNewPiece('f', 8, new Bishop(Colors.white, board));
+            PutNewPiece('g', 8, new Horse(Colors.white, board));
             PutNewPiece('h', 8, new Tower(Colors.white, board));
 
-            for (int i = 0; i < 8; i++)
-                PutNewPiece((char)('a' + i), 7, new Pawn(Colors.white, board));
+            
         }
     }
 
